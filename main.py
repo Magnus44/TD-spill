@@ -1,6 +1,7 @@
 #hovedfilen
 import pygame as pg
 from constants import *
+from images import *
 
 pg.init()
 clock = pg.time.Clock()
@@ -19,7 +20,7 @@ while running:
     screen.fill(WHITE)
 
     
-    #screen.blit(bg_image, (0, 0))
+    screen.blit(map_image, (0, 0))
 
     
     pg.display.update()
