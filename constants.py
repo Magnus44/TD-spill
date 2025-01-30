@@ -9,7 +9,7 @@ YELLOW = (200, 200 , 0)
 # Definerer størrelsen på pygame-vinduet:
 # MERK: Samme størrelse som bg image
 WIDTH = 1024
-HEIGHT = 704
+HEIGHT = 759
 SIZE = (WIDTH, HEIGHT)
 
 # Definerer Frames Per Second:

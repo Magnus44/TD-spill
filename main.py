@@ -1,11 +1,13 @@
 #hovedfilen
-import pygame as pg
 from constants import *
+import pygame as pg
+pg.init()
+screen = pg.display.set_mode(SIZE)
+# MERK: Må gjøre dette før vi begynner med bilder transform osv 
+
 from images import *
 
-pg.init()
 clock = pg.time.Clock()
-screen = pg.display.set_mode(SIZE)
 
 
 running = True
