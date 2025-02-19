@@ -13,11 +13,11 @@ class Zombie:
         if strong:
             self.speed = 0.5
             self.damage = 3
-            self.health = 30
+            self.health = 500
         else:
             self.speed = 1
             self.damage = 1
-            self.health = 10
+            self.health = 300
 
         # Velg tilfeldig startposisjon
         side = random.choice(["top", "left", "right", "bottom", "corner"])
