@@ -1,54 +1,64 @@
 import pygame as pg
+import math
 import random
 from constants import *
 from president import President
+from towers import Tower
 
 class Zombie:
     def __init__(self, president, strong=False):
-        """Oppretter en zombie, med bedre egenskaper om strong=True"""
-        self.president = president
-        self.size = 30
-        self.color = BLUE if not strong else YELLOW  # Gul farge for sterke zombier
-        
-        if strong:
-            self.speed = 0.5
-            self.damage = 3
-            self.health = 500
-        else:
-            self.speed = 1
-            self.damage = 1
-            self.health = 300
-
-        # Velg tilfeldig startposisjon
-        side = random.choice(["top", "left", "right", "bottom", "corner"])
-        if side == "top":
-            self.x, self.y = random.randint(0, WIDTH), -self.size
-        elif side == "bottom":
+        # Zombien starter på en tilfeldig posisjon rundt kantene av skjermen
+        edge = random.choice(["top", "bottom", "left", "right"])
+        if edge == "top":
+            self.x, self.y = random.randint(0, WIDTH), 0
+        elif edge == "bottom":
             self.x, self.y = random.randint(0, WIDTH), HEIGHT
-        elif side == "left":
-            self.x, self.y = -self.size, random.randint(0, HEIGHT)
-        elif side == "right":
+        elif edge == "left":
+            self.x, self.y = 0, random.randint(0, HEIGHT)
+        elif edge == "right":
             self.x, self.y = WIDTH, random.randint(0, HEIGHT)
-        elif side == "corner":
-            self.x, self.y = random.choice([(0, 0), (0, HEIGHT), (WIDTH, 0), (WIDTH, HEIGHT)])
-        
-        self.rect = pg.Rect(self.x, self.y, self.size, self.size)
-        self.last_attack_time = 0  # Når zombien sist skadet presidenten
+
+        self.speed = 1.5 if strong else 1  # Sterkere zombier er raskere
+        self.max_health = 30 if strong else 20  # Sterkere zombier har mer liv
+        self.health = self.max_health  # Alle starter med fullt liv
+        self.color = YELLOW if strong else RED  # Farge basert på styrke
+        self.target = president  # Startmål er presidenten
+
+    def find_nearest_target(self, towers, president):
+        """Finner nærmeste mål: Enten et tårn eller presidenten."""
+        nearest = president
+        min_distance = math.sqrt((self.x - president.x) ** 2 + (self.y - president.y) ** 2)
+
+        for tower in towers:
+            distance = math.sqrt((self.x - tower.x) ** 2 + (self.y - tower.y) ** 2)
+            if distance < min_distance:
+                nearest = tower
+                min_distance = distance
+
+        self.target = nearest  # Sett nærmeste mål som target
 
     def move(self):
-        """Beveger zombien mot presidenten og skader ham hvis de kolliderer"""
-        if self.rect.colliderect(self.president.rect):  # Treffer presidenten
-            current_time = pg.time.get_ticks()
-            if current_time - self.last_attack_time >= 1000:  # Hver 1000 ms (1 sekund)
-                self.president.take_damage(self.damage)
-                self.last_attack_time = current_time  # Oppdaterer tid for siste skade
-        else:  # Fortsetter å bevege seg
-            dx = self.president.x - self.x
-            dy = self.president.y - self.y
-            dist = max(1, (dx**2 + dy**2) ** 0.5)
-            self.x += self.speed * (dx / dist)
-            self.y += self.speed * (dy / dist)
-            self.rect.topleft = (self.x, self.y)
+        """Beveger zombien mot målet sitt."""
+        if self.target:
+            dx, dy = self.target.x - self.x, self.target.y - self.y
+            distance = math.sqrt(dx**2 + dy**2)
+            if distance > 0:
+                self.x += (dx / distance) * self.speed
+                self.y += (dy / distance) * self.speed
 
     def draw(self, screen):
-        pg.draw.rect(screen, self.color, self.rect)
+        """Tegner zombien og livsbaren over den."""
+        pg.draw.circle(screen, self.color, (int(self.x), int(self.y)), 15)
+
+        # Helsebar
+        health_bar_width = 30
+        health_ratio = self.health / self.max_health  # Hvor mye liv er igjen
+        pg.draw.rect(screen, BLACK, (self.x - 15, self.y - 20, health_bar_width, 5))  # Bakgrunn
+        pg.draw.rect(screen, GREEN, (self.x - 15, self.y - 20, health_bar_width * health_ratio, 5))  # Grønn bar
+
+    def attack(self):
+        """Skader målet sitt hvis det er nært nok."""
+        if isinstance(self.target, President) or isinstance(self.target, Tower):
+            distance = math.sqrt((self.x - self.target.x) ** 2 + (self.y - self.target.y) ** 2)
+            if distance < 20:  # Innenfor angrepsradius
+                self.target.health -= 1  # Reduser liv

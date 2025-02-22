@@ -6,6 +6,7 @@ GREEN = (0,255,0)
 BLUE = (0,0,255)
 YELLOW = (200, 200 , 0)
 
+
 # Definerer størrelsen på pygame-vinduet:
 # MERK: Samme størrelse som bg image
 WIDTH = 1024
