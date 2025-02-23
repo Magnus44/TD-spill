@@ -20,6 +20,7 @@ towers = []
 # Økonomi og kjøp
 money = 100  # Startpenger
 selected_tower = None  # Spillerens valgte tårn
+selected_tower_type = None  # Spillerens valgte tårn (fikset feilen)
 dragging_tower = None  # Posisjonen til det visuelle tårnet under dragging
 
 # Zombie-bølgevariabler
