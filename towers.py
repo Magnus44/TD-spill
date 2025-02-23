@@ -92,3 +92,7 @@ class Tower:
         # Tegn kulene
         for bullet in self.bullets:
             bullet.draw(screen)
+
+    def draw_range(self, screen):
+        """Tegner en sirkel rundt tårnet for å vise rekkevidden."""
+        pg.draw.circle(screen, (0, 255, 0, 100), (self.x, self.y), self.range, 1)  # Grønn sirkel med 1 px bredde

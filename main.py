@@ -33,6 +33,15 @@ zombie_count = 0
 running = True
 game_over = False
 
+def is_valid_placement(x, y, towers):
+    """Sjekker om tårnet kan plasseres uten å overlappe andre tårn."""
+    for tower in towers:
+        distance = ((x - tower.x) ** 2 + (y - tower.y) ** 2) ** 0.5
+        if distance < 30:  # Tårnene er 30x30 px, så 30 som minsteavstand
+            return False
+    return True
+
+
 while running:
     screen.fill(WHITE)
     screen.blit(map_image, (0, 0))  # Tegner bakgrunnen
@@ -44,6 +53,13 @@ while running:
         # Klikk for valg av tårn eller plassering
         elif event.type == pg.MOUSEBUTTONDOWN:
             x, y = pg.mouse.get_pos()
+
+            for tower in towers:
+                if tower.rect.collidepoint(event.pos):  # Sjekker om du klikker på et tårn
+                    selected_tower = tower if selected_tower != tower else None  # Velg/fjern valg
+                    break
+            else:
+                selected_tower = None  # Hvis du klikker utenfor et tårn, fjern valg
 
 
             # Sjekk om klikket var på kjøpsknappene
@@ -63,7 +79,7 @@ while running:
         elif event.type == pg.MOUSEBUTTONUP:
             if selected_tower_type and dragging_tower:
                 drop_x, drop_y = event.pos
-                if drop_y > 70:  # Sørger for at tårn ikke kan plasseres i butikken
+                if drop_y > 70 and is_valid_placement(drop_x, drop_y, towers):  # Sørger for at tårn ikke kan plasseres i butikken eller oppå hverandre
                     cost = Tower.COSTS[selected_tower_type]
                     money -= cost
                     towers.append(Tower(drop_x, drop_y, selected_tower_type))
@@ -108,6 +124,9 @@ while running:
             tower.attack(zombies)
             tower.update_bullets()  # Oppdater kulenes posisjon
             tower.draw(screen)
+            if tower == selected_tower:
+                tower.draw_range(screen)  # Viser rekkevidden til det valgte tårnet
+
 
             if tower.health <= 0:  # Fjern døde tårn
                 towers.remove(tower)
