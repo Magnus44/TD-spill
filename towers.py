@@ -47,11 +47,11 @@ class Tower:
 
         if tower_type == "basic":
             self.range = 100
-            self.damage = 1
+            self.damage = 5
             self.attack_speed = 500  # Basic tårn skyter hvert 500 ms
         elif tower_type == "sniper":
             self.range = 200
-            self.damage = 3
+            self.damage = 8
             self.attack_speed = 500  # Snipertårn skyter sjeldnere
 
         self.rect = pg.Rect(self.x - 15, self.y - 15, 30, 30)
