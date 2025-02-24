@@ -19,16 +19,18 @@ towers = []
 
 # Økonomi og kjøp
 money = 100  # Startpenger
+score = 0
 selected_tower = None  # Spillerens valgte tårn
 selected_tower_type = None  # Spillerens valgte tårn (fikset feilen)
 dragging_tower = None  # Posisjonen til det visuelle tårnet under dragging
 
 # Zombie-bølgevariabler
-last_spawn_time = pg.time.get_ticks()
-spawn_interval = 10000  # 10 sekunder
+last_spawn_time = pg.time.get_ticks() 
+spawn_interval = 2000  # 10 sekunder
 zombies_per_wave = 1
-wave_count = 1
+wave_counter = 0
 zombie_count = 0
+wave_finished = False
 
 running = True
 game_over = False
@@ -47,9 +49,18 @@ def is_valid_placement(x, y, towers, president):
     return True
 
 
+wave_active = False
+
 while running:
     screen.fill(WHITE)
     screen.blit(map_image, (0, 0))  # Tegner bakgrunnen
+
+    font = pg.font.Font(None, 30)
+    wave_text = font.render(f"Waves: {wave_counter}", True, BLACK)
+    screen.blit(wave_text, (WIDTH - 150, 50))
+
+    score_text = font.render(f"Score: {score}", True, BLACK)  # Tegn score
+    screen.blit(score_text, (WIDTH - 150, 80))
 
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -58,6 +69,12 @@ while running:
         # Klikk for valg av tårn eller plassering
         elif event.type == pg.MOUSEBUTTONDOWN:
             x, y = pg.mouse.get_pos()
+
+            if not wave_active and not zombies and button_x <= x <= button_x + button_width and button_y <= y <= button_y + button_height:
+                wave_active = True  # Start bølgen
+                last_spawn_time = pg.time.get_ticks()
+                wave_finished = False
+
 
             for tower in towers:
                 if tower.rect.collidepoint(event.pos):  # Sjekker om du klikker på et tårn
@@ -100,17 +117,19 @@ while running:
     if not game_over:
         president.draw(screen)
 
-        # Spawn zombier med tidsintervall
-        current_time = pg.time.get_ticks()
-        if current_time - last_spawn_time > spawn_interval:
-            for _ in range(zombies_per_wave):
-                zombie_count += 1
-                strong = (zombie_count % 10 == 0)  # Hver 10. zombie er sterk
-                zombies.append(Zombie(president, strong))
+        if wave_active:
 
-            zombies_per_wave += 1
-            wave_count += 1
-            last_spawn_time = current_time
+        # Spawn zombier med tidsintervall
+            current_time = pg.time.get_ticks()
+            if current_time - last_spawn_time > spawn_interval:
+                for _ in range(zombies_per_wave):
+                    zombie_count += 1
+                    strong = (zombie_count % 10 == 0)  # Hver 10. zombie er sterk
+                    zombies.append(Zombie(president, strong))
+
+                zombies_per_wave += 1
+                wave_active = False 
+                last_spawn_time = current_time
 
         # Oppdater zombier og angrep nærmeste tårn eller president
         for zombie in zombies[:]:  # Kopi av listen for trygg fjerning
@@ -122,6 +141,7 @@ while running:
             if zombie.health <= 0:
                 zombies.remove(zombie)
                 money += 10  # Spilleren får penger per drept zombie
+                score += 5 if not zombie.strong else 15  # 5 poeng for vanlig zombie, 15 for sterk zombie
 
         # Oppdater og tegn tårnene
         # Oppdater tårnene og kulene deres
@@ -154,6 +174,23 @@ while running:
         font = pg.font.Font(None, 80)
         text = font.render("GAME OVER", True, RED)
         screen.blit(text, (WIDTH // 2 - 150, HEIGHT // 2 - 40))
+
+    if not wave_active and not game_over and not zombies:
+        if not wave_finished:
+            wave_counter += 1
+            score += 100  # 100 poeng for hver wave
+            wave_finished = True
+       
+        button_x = WIDTH - 180
+        button_y = HEIGHT - 60
+        button_width = 160
+        button_height = 40
+
+        pg.draw.rect(screen, BLUE, (button_x, button_y, button_width, button_height), border_radius=10)
+        font = pg.font.Font(None, 30)
+        text = font.render("Start Wave", True, WHITE)
+        screen.blit(text, (button_x + 30, button_y + 10))
+       
 
     pg.display.update()
     clock.tick(FPS)

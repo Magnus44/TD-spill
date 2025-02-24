@@ -44,6 +44,7 @@ class Tower:
         self.type = tower_type
         self.health = 100
         self.bullets = []
+        self.target = None
 
         if tower_type == "basic":
             self.range = 100
@@ -57,15 +58,29 @@ class Tower:
         self.rect = pg.Rect(self.x - 15, self.y - 15, 30, 30)
         self.last_attack_time = 0
 
+    def find_target(self, zombies):
+        if self.target and self.target.health > 0:
+            distance = math.sqrt((self.x - self.target.x) ** 2 + (self.y - self.target.y) ** 2)
+            if distance <= self.range:
+                return  # Fortsetter å angripe samme zombie
+
+        # Finner en ny nærmeste zombie hvis forrige mål er dødt eller utenfor rekkevidde
+        self.target = None
+        min_distance = float("inf")
+        for zombie in zombies:
+            distance = math.sqrt((self.x - zombie.x) ** 2 + (self.y - zombie.y) ** 2)
+            if distance <= self.range and distance < min_distance:
+                self.target = zombie
+                min_distance = distance
+
     def attack(self, zombies):
         current_time = pg.time.get_ticks()
         if current_time - self.last_attack_time >= self.attack_speed:
-            for zombie in zombies:
-                distance = math.sqrt((self.x - zombie.x) ** 2 + (self.y - zombie.y) ** 2)
-                if distance <= self.range:
-                    self.bullets.append(Bullet(self.x, self.y, zombie, self.damage))
-                    self.last_attack_time = current_time
-                    break
+            self.find_target(zombies)  # Oppdaterer target hvis det trengs
+
+            if self.target:
+                self.bullets.append(Bullet(self.x, self.y, self.target, self.damage))
+                self.last_attack_time = current_time
 
     def update_bullets(self):
         for bullet in self.bullets[:]:

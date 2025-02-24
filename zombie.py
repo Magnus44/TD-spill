@@ -7,6 +7,7 @@ from towers import Tower
 
 class Zombie:
     def __init__(self, president, strong=False):
+        self.strong = strong
         # Zombien starter på en tilfeldig posisjon rundt kantene av skjermen
         edge = random.choice(["top", "bottom", "left", "right"])
         if edge == "top":
