@@ -33,12 +33,17 @@ zombie_count = 0
 running = True
 game_over = False
 
-def is_valid_placement(x, y, towers):
-    """Sjekker om tårnet kan plasseres uten å overlappe andre tårn."""
+def is_valid_placement(x, y, towers, president):
+    """Sjekker om tårnet kan plasseres uten å overlappe andre tårn eller presidenten."""
     for tower in towers:
         distance = ((x - tower.x) ** 2 + (y - tower.y) ** 2) ** 0.5
         if distance < 30:  # Tårnene er 30x30 px, så 30 som minsteavstand
             return False
+    
+    tower_rect = pg.Rect(x - 15, y - 15, 30, 30)  
+    if tower_rect.colliderect(president.rect):
+        return False
+
     return True
 
 
@@ -79,7 +84,7 @@ while running:
         elif event.type == pg.MOUSEBUTTONUP:
             if selected_tower_type and dragging_tower:
                 drop_x, drop_y = event.pos
-                if drop_y > 70 and is_valid_placement(drop_x, drop_y, towers):  # Sørger for at tårn ikke kan plasseres i butikken eller oppå hverandre
+                if drop_y > 70 and is_valid_placement(drop_x, drop_y, towers, president):  # Sørger for at tårn ikke kan plasseres i butikken eller oppå hverandre
                     cost = Tower.COSTS[selected_tower_type]
                     money -= cost
                     towers.append(Tower(drop_x, drop_y, selected_tower_type))

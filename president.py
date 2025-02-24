@@ -7,9 +7,10 @@ class President:
         self.y = y
         self.health = 100  # Maks helse
         self.max_health = 100
+        self.rect = pg.Rect(self.x - 20, self.y - 20, 40, 40)
 
     def draw(self, screen):
-        pg.draw.rect(screen, BLUE, (self.x - 20, self.y - 20, 40, 40), border_radius=10)
+        pg.draw.rect(screen, BLUE, self.rect, border_radius=10)
         self.draw_health_bar(screen)
 
     def draw_health_bar(self, screen):
