@@ -6,6 +6,10 @@ from president import President
 from towers import Tower
 
 class Zombie:
+
+    start_health_strong = 30
+    start_health = 20
+
     def __init__(self, president, strong=False):
         self.strong = strong
         # Zombien starter på en tilfeldig posisjon rundt kantene av skjermen
@@ -20,7 +24,7 @@ class Zombie:
             self.x, self.y = WIDTH, random.randint(0, HEIGHT)
 
         self.speed = 1.5 if strong else 1  # Sterkere zombier er raskere
-        self.max_health = 30 if strong else 20  # Sterkere zombier har mer liv
+        self.max_health = Zombie.start_health_strong if strong else Zombie.start_health  # Sterkere zombier har mer liv
         self.health = self.max_health  # Alle starter med fullt liv
         self.color = YELLOW if strong else RED  # Farge basert på styrke
         self.target = president  # Startmål er presidenten

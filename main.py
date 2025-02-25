@@ -126,8 +126,14 @@ while running:
                     zombie_count += 1
                     strong = (zombie_count % 10 == 0)  # Hver 10. zombie er sterk
                     zombies.append(Zombie(president, strong))
+                    if wave_counter >= 15:
+                        Zombie.start_health = 40
+                        Zombie.start_health_strong = 60
 
-                zombies_per_wave += 1
+                if wave_counter < 10:
+                    zombies_per_wave += 1
+                else:
+                    zombies_per_wave += 3
                 wave_active = False 
                 last_spawn_time = current_time
 
