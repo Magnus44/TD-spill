@@ -66,6 +66,28 @@ while running:
         if event.type == pg.QUIT:
             running = False
 
+    # Sjekk for space bar når spillet er over
+        elif event.type == pg.KEYDOWN:
+            if event.key == pg.K_SPACE and game_over:
+                # Tilbakestill spillvariabler
+                president = President(WIDTH // 2, HEIGHT // 2)
+                zombies = [Zombie(president)]
+                towers = []
+                money = 100
+                score = 0
+                selected_tower = None
+                selected_tower_type = None
+                dragging_tower = None
+                last_spawn_time = pg.time.get_ticks()
+                spawn_interval = 2000
+                zombies_per_wave = 1
+                wave_counter = 0
+                zombie_count = 0
+                wave_finished = False
+                wave_active = False
+                game_over = False
+
+
         # Klikk for valg av tårn eller plassering
         elif event.type == pg.MOUSEBUTTONDOWN:
             x, y = pg.mouse.get_pos()
@@ -180,6 +202,11 @@ while running:
         font = pg.font.Font(None, 80)
         text = font.render("GAME OVER", True, RED)
         screen.blit(text, (WIDTH // 2 - 150, HEIGHT // 2 - 40))
+        font = pg.font.Font(None, 40)
+        text = font.render("Press space to play again", True, RED)
+        screen.blit(text, (WIDTH // 2 - 150, HEIGHT // 2 + 100))
+        
+        
 
     if not wave_active and not game_over and not zombies:
         if not wave_finished:
@@ -197,6 +224,7 @@ while running:
         text = font.render("Start Wave", True, WHITE)
         screen.blit(text, (button_x + 30, button_y + 10))
        
+        
 
     pg.display.update()
     clock.tick(FPS)
